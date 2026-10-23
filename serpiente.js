@@ -20,6 +20,12 @@ function limpiarCanvas() {
 function dibujarTodo() {
   limpiarCanvas();
   dibujarTablero();
+  pintarParte(5,5);
+  pintarParte(10,2)
+  pintarParte(23,23)
+  pintarParte(23,9)
+  pintarParte(0,15)
+  pintarParte(3,23)
 }
 
 //ctx.strokeStyle coloca un color de línea, similar a fillStyle
@@ -50,12 +56,24 @@ function dibujarTablero() {
 
     ctx.strokeStyle
     ctx.beginPath()
-    ctx.moveTo(0 , i)
-    ctx.lineTo(canvas.width , i)
+    ctx.moveTo(0, i)
+    ctx.lineTo(canvas.width, i)
     ctx.stroke()
 
   }
 }
 
+
+function pintarParte(lineaX, lineaY) {
+  let posicionX = lineaX * tamaño_celda
+  let posicionY = lineaY * tamaño_celda
+
+  ctx.fillStyle = "#7b00ff"
+  ctx.fillRect(posicionX, posicionY, tamaño_celda, tamaño_celda);
+
+  ctx.strokeStyle = "#ec5dff"
+  ctx.strokeRect(posicionX, posicionY, tamaño_celda, tamaño_celda)
+
+}
 
 
