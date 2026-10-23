@@ -2,7 +2,7 @@
 // 1. Capturamos el canvas y su contexto de dibujo
 const canvas = document.getElementById("canvasJuego");
 const ctx = canvas.getContext("2d");
-
+const tamaño_celda = 25
 
 
 
@@ -22,8 +22,6 @@ function dibujarTodo() {
   dibujarTablero();
 }
 
-const tamaño_celda = 25
-
 //ctx.strokeStyle coloca un color de línea, similar a fillStyle
 
 //ctx.beginPath() se invoca siempre para iniciar un trazo
@@ -38,7 +36,7 @@ const tamaño_celda = 25
 
 function dibujarTablero() {
 
-  for (i = 0; i < canvas.height; i += 25) {
+  for (i = 0; i < canvas.height; i += tamaño_celda) {
 
     ctx.strokeStyle
     ctx.beginPath()
@@ -48,7 +46,7 @@ function dibujarTablero() {
 
   }
 
-  for (i = 0; i < canvas.width; i += 25) {
+  for (i = 0; i < canvas.width; i += tamaño_celda) {
 
     ctx.strokeStyle
     ctx.beginPath()
