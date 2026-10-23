@@ -3,6 +3,12 @@
 const canvas = document.getElementById("canvasJuego");
 const ctx = canvas.getContext("2d");
 const tamaño_celda = 25
+const serpiente = [
+  {x:8,y:9},
+  {x:9,y:9},
+  {x:10,y:9},
+  {x:10,y:10}
+]
 
 
 
@@ -20,12 +26,8 @@ function limpiarCanvas() {
 function dibujarTodo() {
   limpiarCanvas();
   dibujarTablero();
-  pintarParte(5,5);
-  pintarParte(10,2)
-  pintarParte(23,23)
-  pintarParte(23,9)
-  pintarParte(0,15)
-  pintarParte(3,23)
+
+  pintarSerpiente();
 }
 
 //ctx.strokeStyle coloca un color de línea, similar a fillStyle
@@ -42,9 +44,9 @@ function dibujarTodo() {
 
 function dibujarTablero() {
 
-  for (i = 0; i < canvas.height; i += tamaño_celda) {
+  for (let i = 0; i < canvas.height; i += tamaño_celda) {
 
-    ctx.strokeStyle
+    ctx.strokeStyle = "#1b0323"
     ctx.beginPath()
     ctx.moveTo(i, 0)
     ctx.lineTo(i, canvas.height)
@@ -52,9 +54,9 @@ function dibujarTablero() {
 
   }
 
-  for (i = 0; i < canvas.width; i += tamaño_celda) {
+  for (let i = 0; i < canvas.width; i += tamaño_celda) {
 
-    ctx.strokeStyle
+    ctx.strokeStyle = "#1b0323"
     ctx.beginPath()
     ctx.moveTo(0, i)
     ctx.lineTo(canvas.width, i)
@@ -64,16 +66,34 @@ function dibujarTablero() {
 }
 
 
-function pintarParte(lineaX, lineaY) {
+function pintarParte(lineaX, lineaY, color) {
   let posicionX = lineaX * tamaño_celda
   let posicionY = lineaY * tamaño_celda
 
-  ctx.fillStyle = "#7b00ff"
+  ctx.fillStyle = color
   ctx.fillRect(posicionX, posicionY, tamaño_celda, tamaño_celda);
 
   ctx.strokeStyle = "#ec5dff"
   ctx.strokeRect(posicionX, posicionY, tamaño_celda, tamaño_celda)
 
 }
+
+function pintarSerpiente(){
+  let objetoTemp
+  let color
+
+  for(let i = 0; i < serpiente.length; i++){
+    objetoTemp = serpiente[i]
+
+    if(i === serpiente.length - 1){
+      color = "#650f51"   // cabeza
+    } else {
+      color = "#7b00ff"   // cuerpo
+    }
+
+    pintarParte(objetoTemp.x , objetoTemp.y, color)
+  }
+}
+
 
 
