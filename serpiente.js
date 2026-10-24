@@ -1,11 +1,7 @@
-
-// 1. Capturamos el canvas y su contexto de dibujo
 const canvas = document.getElementById("canvasJuego");
 const ctx = canvas.getContext("2d");
 const tamaño_celda = 25
 const serpiente = [
-
-
 
   { x: 10, y: 10 },
   { x: 10, y: 9 },
@@ -23,14 +19,7 @@ let comida = {
   y: 0
 }
 
-
-
-// Primera pintura del juego al cargar la página
 dibujarTodo();
-
-// =========================
-// FUNCIONES DE DIBUJO
-// =========================
 
 function limpiarCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -43,18 +32,6 @@ function dibujarTodo() {
   pintarParte(comida.x, comida.y, "#ff8ff6");
   pintarSerpiente();
 }
-
-//ctx.strokeStyle coloca un color de línea, similar a fillStyle
-
-//ctx.beginPath() se invoca siempre para iniciar un trazo
-
-//ctx.moveTo(x, y) posición inicial de la figura, colocar cualquier valor
-
-//ctx.lineTo(x, y) dibuja una línea desde la ultima posicion del graficador, en este caso lo que puso en moveTo, hasta la posicion que
-//recibe como parámetro, colocar cualquier valor
-
-//ctx.stroke()dibuja la línea
-
 
 function dibujarTablero() {
 
@@ -79,7 +56,6 @@ function dibujarTablero() {
   }
 }
 
-
 function pintarParte(lineaX, lineaY, color) {
   let posicionX = lineaX * tamaño_celda
   let posicionY = lineaY * tamaño_celda
@@ -100,9 +76,9 @@ function pintarSerpiente() {
     objetoTemp = serpiente[i]
 
     if (i === 0) {
-      color = "#650f51"   // cabeza
+      color = "#650f51"
     } else {
-      color = "#7b00ff"   // cuerpo
+      color = "#7b00ff"
     }
 
     pintarParte(objetoTemp.x, objetoTemp.y, color)
@@ -158,6 +134,7 @@ function moverAbajo() {
 }
 
 function cambiarDireccion(direccion) {
+  if (juegoTerminado || esRetroceso(direccion)) return
   if (direccion == "derecha") {
     direccionActual = "derecha"
   } else if (direccion == "izquierda") {
@@ -171,14 +148,19 @@ function cambiarDireccion(direccion) {
 
 function iniciarJuego() {
 
+  clearInterval(intervaloSerpiente)
+
   pintarComida();
 
-  intervaloSerpiente = setInterval(moverSerpiente, 1000)
+  intervaloSerpiente = setInterval(moverSerpiente, velocidad)
 
 }
 
 function moverSerpiente() {
   console.log("moviendo")
+
+  if (juegoTerminado || !direccionActual) return
+  if (revisarChoque()) return
 
   if (direccionActual == "derecha") {
     moverDerecha();
@@ -207,8 +189,6 @@ function pausarJuego() {
   clearInterval(intervaloSerpiente)
 }
 
-
-
 function pintarComida() {
 
   let aleatorioComidaX = Math.floor(Math.random() * 24);
@@ -227,3 +207,104 @@ function atraparComida() {
     return false
   }
 }
+
+const serpienteInicial = serpiente.map(p => ({ x: p.x, y: p.y }))
+const columnas = canvas.width / tamaño_celda
+const filas = canvas.height / tamaño_celda
+
+const velocidadInicial = 300
+let velocidad = velocidadInicial
+
+let juegoTerminado = false
+
+function revisarChoque() {
+  let cabeza = serpiente[0]
+  let nx = cabeza.x
+  let ny = cabeza.y
+
+  if (direccionActual == "derecha") nx++
+  else if (direccionActual == "izquierda") nx--
+  else if (direccionActual == "arriba") ny--
+  else if (direccionActual == "abajo") ny++
+
+  let choqueBorde = nx < 0 || nx >= columnas || ny < 0 || ny >= filas
+  let choqueCuerpo = serpiente.some(p => p.x === nx && p.y === ny)
+
+  if (choqueBorde || choqueCuerpo) {
+    terminarJuego()
+    return true
+  }
+  return false
+}
+
+function terminarJuego() {
+  juegoTerminado = true
+  clearInterval(intervaloSerpiente)
+
+  dibujarTodo()
+  dibujarGameOver()
+
+  document.getElementById("estado").textContent = "Game Over"
+  document.getElementById("mensaje").textContent =
+    "GAME OVER - Puntaje final: " + puntaje + ". Presiona Reiniciar."
+}
+
+function dibujarGameOver() {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.7)"
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  ctx.fillStyle = "#ff51f3"
+  ctx.font = "bold 60px Arial"
+  ctx.textAlign = "center"
+  ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2)
+
+  ctx.fillStyle = "white"
+  ctx.font = "24px Arial"
+  ctx.fillText("Puntaje: " + puntaje, canvas.width / 2, canvas.height / 2 + 45)
+}
+
+function reiniciarJuego() {
+  clearInterval(intervaloSerpiente)
+
+  serpiente.length = 0
+  serpienteInicial.forEach(p => serpiente.push({ x: p.x, y: p.y }))
+
+  direccionActual = undefined
+  juegoTerminado = false
+  puntaje = 0
+  velocidad = velocidadInicial
+
+  comida.x = 0
+  comida.y = 0
+
+  document.getElementById("puntaje").textContent = puntaje
+  document.getElementById("estado").textContent = "Listo"
+  document.getElementById("mensaje").textContent = "Presiona iniciar para comenzar."
+
+  dibujarTodo()
+}
+
+function esRetroceso(direccion) {
+  let cabeza = serpiente[0]
+  let cuello = serpiente[1]
+
+  let dx = 0
+  let dy = 0
+  if (direccion == "derecha") dx = 1
+  if (direccion == "izquierda") dx = -1
+  if (direccion == "arriba") dy = -1
+  if (direccion == "abajo") dy = 1
+
+  return cabeza.x + dx === cuello.x && cabeza.y + dy === cuello.y
+}
+
+document.addEventListener("keydown", function (e) {
+  if (e.key == "ArrowUp") cambiarDireccion("arriba")
+  else if (e.key == "ArrowDown") cambiarDireccion("abajo")
+  else if (e.key == "ArrowLeft") cambiarDireccion("izquierda")
+  else if (e.key == "ArrowRight") cambiarDireccion("derecha")
+  else if (e.key == " ") pausarJuego()
+  else return
+
+  e.preventDefault()
+})
